@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mootherkinz of the Bride Dress Hunt</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(#fff8f5, #f6e8ee);
+      color: #2b2024;
+    }
+
+    .app {
+      max-width: 460px;
+      min-height: 100vh;
+      margin: auto;
+      padding: 18px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header p {
+      margin: 0;
+      color: #8c3f56;
+      font-weight: 800;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .stats {
+      display: flex;
+      gap: 8px;
+      margin: 16px 0;
+      overflow-x: auto;
+    }
+
+    .stats span {
+      background: white;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .card {
+      min-height: 560px;
+      background: white;
+      border-radius: 34px;
+      overflow: hidden;
+      box-shadow: 0 18px 50px rgba(70, 38, 50, .18);
+      touch-action: pan-y;
+      user-select: none;
+      transition: transform .18s, opacity .18s;
+    }
+
+    .dress-art {
+      height: 340px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, #f3d2da, #f9f1f4);
+    }
+
+    .dress-svg {
+      width: 76%;
+      max-width: 280px;
+      filter: drop-shadow(0 18px 20px rgba(0,0,0,.15));
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    #dressDetails {
+      color: #7b6870;
+      line-height: 1.5;
+    }
+
+    #tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      background: #f6e7eb;
+      color: #6f3143;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    nav {
+      position: sticky;
+      bottom: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin: 16px 0;
+      padding: 12px;
+      background: rgba(255,255,255,.75);
+      backdrop-filter: blur(12px);
+      border-radius: 999px;
+    }
+
+    nav button {
+      font-size: 18px;
+    }
+
+    .no, .yes {
+      width: 64px;
+      height: 64px;
+      color: white;
+      font-size: 28px;
+    }
+
+    .no {
+      background: #b23a48;
+    }
+
+    .yes {
+      background: #277c59;
+    }
+
+    #shopBtn {
+      background: #2b2024;
+      color: white;
+      padding: 16px 22px;
+    }
+
+    #likedGrid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .liked-item {
+      text-align: left;
+      background: white;
+      padding: 12px;
+      border-radius: 18px;
+      border: none;
+      box-shadow: 0 8px 20px rgba(0,0,0,.08);
+    }
+
+    .liked-item small {
+      color: #7b6870;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <header>
+    <div>
+      <p>Mootherkinz of the Bride</p>
+      <h1>Dress Hunt</h1>
+    </div>
+
+    <button id="resetBtn">Reset</button>
+  </header>
+
+  <section class="stats">
+    <span><b id="likedCount">0</b> liked</span>
+    <span><b id="seenCount">0</b> seen</span>
+    <span id="tasteLabel">Learning her taste…</span>
+  </section>
+
+  <article id="card" class="card">
+
+    <div id="dressArt" class="dress-art"></div>
+
+    <div class="content">
+      <h2 id="dressName"></h2>
+
+      <p id="dressDetails"></p>
+
+      <div id="tags"></div>
+
+      <p><small>Tap the dress to shop</small></p>
+    </div>
+
+  </article>
+
+  <nav>
+    <button id="noBtn" class="no">←</button>
+    <button id="shopBtn">Shop</button>
+    <button id="yesBtn" class="yes">→</button>
+  </nav>
+
+  <section>
+    <h2>Liked Styles</h2>
+
+    <div id="likedGrid"></div>
+  </section>
+
+</div>
+
+<script>
+
+const colors = [
+  "Dusty rose",
+  "Navy",
+  "Champagne",
+  "Slate blue",
+  "Mauve",
+  "Silver",
+  "Burgundy",
+  "Sage green",
+  "Emerald",
+  "Plum",
+  "Taupe",
+  "Gold",
+  "Lavender"
+];
+
+const silhouettes = [
+  "A-line",
+  "Sheath",
+  "Column",
+  "Empire",
+  "Fit and flare",
+  "Wrap",
+  "Mermaid",
+  "Tea length"
+];
+
+const sleeves = [
+  "Sleeveless",
+  "Short sleeve",
+  "Flutter sleeve",
+  "3/4 sleeve",
+  "Long sleeve",
+  "Capelet",
+  "Jacket",
+  "Off shoulder"
+];
+
+const necklines = [
+  "V-neck",
+  "Scoop neck",
+  "Boat neck",
+  "Portrait neckline",
+  "Illusion neck",
+  "Cowl neck",
+  "Surplice",
+  "High neck"
+];
+
+const fabrics = [
+  "Chiffon",
+  "Lace",
+  "Satin",
+  "Crepe",
+  "Tulle",
+  "Velvet",
+  "Sequins",
+  "Jersey"
+];
+
+const details = [
+  "beaded waist",
+  "floral embroidery",
+  "soft drape",
+  "pleated skirt",
+  "matching jacket",
+  "subtle sparkle",
+  "ruffle detail",
+  "lace overlay"
+];
+
+const formalities = [
+  "formal",
+  "classic",
+  "black tie",
+  "garden",
+  "elegant",
+  "spring",
+  "winter",
+  "evening"
+];
+
+function randomFrom(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function makeRandomDress() {
+
+  const color = randomFrom(colors);
+  const silhouette = randomFrom(silhouettes);
+  const sleeve = randomFrom(sleeves);
+  const neckline = randomFrom(necklines);
+  const fabric = randomFrom(fabrics);
+  const detail = randomFrom(details);
+  const formality = randomFrom(formalities);
+
+  const name = `${color} ${fabric} ${silhouette} Dress`;
+
+  const search = encodeURIComponent(
+    `mother of the bride ${color} ${fabric} ${silhouette} ${sleeve} ${neckline} dress`
+  );
+
+  return {
+    name,
+    silhouette,
+    color,
+    sleeve,
+    neckline,
+    fabric,
+    detail,
+    formality,
+    shopUrl: `https://www.google.com/search?tbm=shop&q=${search}`
+  };
+}
+
+let currentDress;
+
+let seen = Number(localStorage.getItem("seen") || 0);
+
+let liked = JSON.parse(localStorage.getItem("liked") || "[]");
+
+let weights = JSON.parse(localStorage.getItem("weights") || "{}");
+
+const card = document.getElementById("card");
+const dressArt = document.getElementById("dressArt");
+const dressName = document.getElementById("dressName");
+const dressDetails = document.getElementById("dressDetails");
+const tags = document.getElementById("tags");
+const likedCount = document.getElementById("likedCount");
+const seenCount = document.getElementById("seenCount");
+const tasteLabel = document.getElementById("tasteLabel");
+const likedGrid = document.getElementById("likedGrid");
+
+function traits(dress) {
+  return [
+    `silhouette:${dress.silhouette}`,
+    `color:${dress.color}`,
+    `sleeve:${dress.sleeve}`,
+    `neckline:${dress.neckline}`,
+    `fabric:${dress.fabric}`,
+    `formality:${dress.formality}`
+  ];
+}
+
+function score(dress) {
+  return traits(dress).reduce(
+    (sum, trait) => sum + (weights[trait] || 0),
+    0
+  );
+}
+
+function pickDress() {
+
+  let bestDress = makeRandomDress();
+
+  if (seen < 5) return bestDress;
+
+  for (let i = 0; i < 20; i++) {
+
+    const candidate = makeRandomDress();
+
+    if (score(candidate) > score(bestDress)) {
+      bestDress = candidate;
+    }
+  }
+
+  return bestDress;
+}
+
+function colorCode(color) {
+
+  return {
+    "Dusty rose": "#d997a6",
+    "Navy": "#1f3556",
+    "Champagne": "#d8bd8f",
+    "Slate blue": "#7189a5",
+    "Mauve": "#bd879a",
+    "Silver": "#b9bcc5",
+    "Burgundy": "#7b2434",
+    "Sage green": "#9aae8c",
+    "Emerald": "#0f7a5c",
+    "Plum": "#6f3b6d",
+    "Taupe": "#9d8a7c",
+    "Gold": "#c9a54c",
+    "Lavender": "#a18ac9"
+  }[color] || "#c88b9a";
+}
+
+function drawDress(dress) {
+
+  const color = colorCode(dress.color);
+
+  return `
+    <svg class="dress-svg" viewBox="0 0 320 380">
+
+      <circle cx="160" cy="52" r="32" fill="#f1cdbd"/>
+
+      <path d="M95 95 C70 130 65 180 78 230 L105 225 C98 170 112 130 132 105 Z"
+        fill="${color}" opacity=".82"/>
+
+      <path d="M225 95 C250 130 255 180 242 230 L215 225 C222 170 208 130 188 105 Z"
+        fill="${color}" opacity=".82"/>
+
+      <path d="M118 80 C128 72 192 72 202 80
+      C205 135 196 178 190 213
+      L130 213
+      C124 178 115 135 118 80 Z"
+      fill="${color}"/>
+
+      <path d="M132 82 L160 132 L188 82"
+      fill="#fff8f5"
+      opacity=".65"/>
+
+      <path d="M130 205
+      C105 250 88 305 75 363
+      L245 363
+      C232 305 215 250 190 205 Z"
+      fill="${color}"/>
+
+      <path d="M126 205 L194 205"
+      stroke="#fff"
+      stroke-width="8"
+      opacity=".35"/>
+
+      <path d="M160 213 L160 360"
+      stroke="#fff"
+      stroke-width="3"
+      opacity=".18"/>
+
+    </svg>
+  `;
+}
+
+function render() {
+
+  currentDress = pickDress();
+
+  dressArt.innerHTML = drawDress(currentDress);
+
+  dressName.textContent = currentDress.name;
+
+  dressDetails.textContent =
+    `${currentDress.color} ${currentDress.fabric.toLowerCase()} ${currentDress.silhouette.toLowerCase()} with ${currentDress.detail}.`;
+
+  tags.innerHTML = [
+    currentDress.silhouette,
+    currentDress.sleeve,
+    currentDress.neckline,
+    currentDress.formality
+  ]
+  .map(tag => `<span class="tag">${tag}</span>`)
+  .join("");
+
+  card.style.transform = "translateX(0) rotate(0deg)";
+  card.style.opacity = "1";
+}
+
+function save() {
+
+  localStorage.setItem("seen", seen);
+
+  localStorage.setItem("liked", JSON.stringify(liked));
+
+  localStorage.setItem("weights", JSON.stringify(weights));
+}
+
+function updateStats() {
+
+  likedCount.textContent = liked.length;
+
+  seenCount.textContent = seen;
+
+  const topTraits = Object.entries(weights)
+    .filter(([k, v]) => v > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 2)
+    .map(([k]) => k.split(":")[1]);
+
+  tasteLabel.textContent =
+    topTraits.length
+      ? `Likes ${topTraits.join(" + ")}`
+      : "Learning her taste…";
+
+  likedGrid.innerHTML = liked.length
+    ? liked.slice(-6).reverse().map(dress => `
+      <button
+        class="liked-item"
+        onclick="window.open('${dress.shopUrl}', '_blank')">
+
+        <strong>${dress.name}</strong><br>
+
+        <small>
+          ${dress.color} · ${dress.silhouette}
+        </small>
+
+      </button>
+    `).join("")
+    : "<p>No liked dresses yet.</p>";
+}
+
+function swipe(isLiked) {
+
+  seen++;
+
+  traits(currentDress).forEach(trait => {
+
+    weights[trait] =
+      (weights[trait] || 0) + (isLiked ? 1 : -0.5);
+  });
+
+  if (isLiked) {
+
+    liked.push(currentDress);
+
+    card.style.transform =
+      "translateX(120%) rotate(15deg)";
+
+  } else {
+
+    card.style.transform =
+      "translateX(-120%) rotate(-15deg)";
+  }
+
+  card.style.opacity = "0";
+
+  save();
+
+  updateStats();
+
+  setTimeout(render, 180);
+}
+
+function shop() {
+  window.open(currentDress.shopUrl, "_blank");
+}
+
+document.getElementById("yesBtn").onclick =
+  () => swipe(true);
+
+document.getElementById("noBtn").onclick =
+  () => swipe(false);
+
+document.getElementById("shopBtn").onclick =
+  shop;
+
+card.onclick = shop;
+
+document.getElementById("resetBtn").onclick = () => {
+
+  localStorage.clear();
+
+  seen = 0;
+
+  liked = [];
+
+  weights = {};
+
+  updateStats();
+
+  render();
+};
+
+let startX = 0;
+
+let moveX = 0;
+
+let dragging = false;
+
+card.addEventListener("pointerdown", e => {
+
+  dragging = true;
+
+  startX = e.clientX;
+});
+
+card.addEventListener("pointermove", e => {
+
+  if (!dragging) return;
+
+  moveX = e.clientX - startX;
+
+  card.style.transform =
+    `translateX(${moveX}px) rotate(${moveX / 18}deg)`;
+});
+
+card.addEventListener("pointerup", () => {
+
+  if (!dragging) return;
+
+  dragging = false;
+
+  if (moveX > 90) {
+
+    swipe(true);
+
+  } else if (moveX < -90) {
+
+    swipe(false);
+
+  } else {
+
+    card.style.transform =
+      "translateX(0) rotate(0deg)";
+  }
+
+  moveX = 0;
+});
+
+updateStats();
+
+render();
+
+</script>
+
+</body>
+</html>
+```
